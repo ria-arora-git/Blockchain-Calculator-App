@@ -1,0 +1,224 @@
+<!doctype html>
+
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title>Calculator DApp</title>
+    <script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.umd.min.js"></script>
+</head>
+
+<body>
+    <h1>Calculator DApp</h1>
+
+    <button id="connect">Connect MetaMask</button>
+
+    <p id="who"></p>
+
+    Enter the first number: <input id="a" placeholder="a" />
+    Enter the second number: <input id="b" placeholder="b" />
+
+    <button id="add">Add</button>
+    <button id="sub">Sub</button>
+    <button id="mul">Mul</button>
+    <button id="div">Div</button>
+
+    <p>Result: <span id="result"></span></p>
+    <p>Tx Hash: <span id="tx"></span></p>
+</body>
+
+<script>
+const abi = [
+  {
+    "inputs": [
+      {
+        "internalType": "int256",
+        "name": "a",
+        "type": "int256"
+      },
+      {
+        "internalType": "int256",
+        "name": "b",
+        "type": "int256"
+      }
+    ],
+    "name": "addition",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "int256",
+        "name": "a",
+        "type": "int256"
+      },
+      {
+        "internalType": "int256",
+        "name": "b",
+        "type": "int256"
+      }
+    ],
+    "name": "division",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "int256",
+        "name": "a",
+        "type": "int256"
+      },
+      {
+        "internalType": "int256",
+        "name": "b",
+        "type": "int256"
+      }
+    ],
+    "name": "multiplication",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "int256",
+        "name": "a",
+        "type": "int256"
+      },
+      {
+        "internalType": "int256",
+        "name": "b",
+        "type": "int256"
+      }
+    ],
+    "name": "subtraction",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "getResult",
+    "outputs": [
+      {
+        "internalType": "int256",
+        "name": "",
+        "type": "int256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "result",
+    "outputs": [
+      {
+        "internalType": "int256",
+        "name": "",
+        "type": "int256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  }
+];
+
+const contractAddress = "0x507f05b59bc89Dc8b59aDC90Ba6B89Ac254B61Ab";
+
+let provider, signer, contract;
+
+async function connect() {
+    if (!window.ethereum) return alert("Install MetaMask");
+
+    await window.ethereum.request({
+        method: "eth_requestAccounts"
+    });
+
+    provider = new ethers.providers.Web3Provider(window.ethereum);
+    signer = provider.getSigner();
+    contract = new ethers.Contract(contractAddress, abi, signer);
+
+    document.getElementById("who").innerText =
+        "Connected: " + await signer.getAddress();
+}
+
+document.getElementById("connect").onclick = connect;
+document.getElementById("add").onclick = add;
+document.getElementById("sub").onclick = sub;
+document.getElementById("mul").onclick = mul;
+document.getElementById("div").onclick = div;
+
+async function add() {
+    const a = parseInt(document.getElementById("a").value || "0");
+    const b = parseInt(document.getElementById("b").value || "0");
+
+    const tx = await contract.addition(a, b);
+
+    document.getElementById("tx").innerText = tx.hash;
+
+    const receipt = await tx.wait();
+
+    console.log("Mined in block", receipt.blockNumber);
+
+    const res = await contract.getResult();
+
+    document.getElementById("result").innerText = res.toString();
+}
+
+async function sub() {
+    const a = parseInt(document.getElementById("a").value || "0");
+    const b = parseInt(document.getElementById("b").value || "0");
+
+    const tx = await contract.subtraction(a, b);
+
+    document.getElementById("tx").innerText = tx.hash;
+
+    const receipt = await tx.wait();
+
+    console.log("Mined in block", receipt.blockNumber);
+
+    const res = await contract.getResult();
+
+    document.getElementById("result").innerText = res.toString();
+}
+
+async function mul() {
+    const a = parseInt(document.getElementById("a").value || "0");
+    const b = parseInt(document.getElementById("b").value || "0");
+
+    const tx = await contract.multiplication(a, b);
+
+    document.getElementById("tx").innerText = tx.hash;
+
+    const receipt = await tx.wait();
+
+    console.log("Mined in block", receipt.blockNumber);
+
+    const res = await contract.getResult();
+
+    document.getElementById("result").innerText = res.toString();
+}
+
+async function div() {
+    const a = parseInt(document.getElementById("a").value || "0");
+    const b = parseInt(document.getElementById("b").value || "0");
+
+    const tx = await contract.division(a, b);
+
+    document.getElementById("tx").innerText = tx.hash;
+
+    const receipt = await tx.wait();
+
+    console.log("Mined in block", receipt.blockNumber);
+
+    const res = await contract.getResult();
+
+    document.getElementById("result").innerText = res.toString();
+}
+
+</script>
